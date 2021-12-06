@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ精选照片切割器</title>
+
+    <link rel="stylesheet" href="jquery.Jcrop.css">
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="jquery.Jcrop.min.js"></script>
+    <!-- <script src="//apps.bdimg.com/libs/jquery/1.11.3/jquery.min.js"></script> -->
+    <!-- <script src="//ku.shouce.ren/libs/jcrop/js/jquery.Jcrop.min.js"> -->
+    </script>
+</head>
+
+<body>
+<img id="qwq" src="" title="awa">
+<br>
+<select id="scale" onchange="gradeChange()" title="选择规格">
+    <option value="1">--请选择裁剪规格--</option>
+    <option value="1.5">规格C3，宽高比3:2</option>
+    <option value="1">规格C4，宽高比1:1</option>
+    <option value="1.2">规格C5，宽高比6:5</option>
+    <option value="1">规格C6，宽高比1:1</option>
+    <option value="0.75">规格C7，宽高比3:4</option>
+    <option value="0.8">规格C8，宽高比2:2.5</option>
+    <option value="0.75">规格C9，宽高比3:4</option>
+</select>
+
+<input type="file" id="ipt" accept="image/*" value="选择图片" title="选择图片">
+<br><br>
+<div id="ok"></div>
+
+<script>
+    let scale = 1;
+    let jcropApi;
+
+    // 初始化Jcrop
+    function initJcrop() {
+        if (jcropApi != null) {
+            jcropApi.destroy()
+        }
+        $('#qwq').Jcrop({
+            onDblClick: pushImage,
+            aspectRatio: scale,
+            onChange: debug
+        }, function () {
+            jcropApi = this;
+        });
+    }
+
+    initJcrop()
+
+    // Debug
+    function debug() {
+        // console.log(jcropApi.tellSelect())
+    }
+
+    // 提交裁剪数据
+    function pushImage(c) {
+        const imgFile = new FileReader();
+        imgFile.readAsDataURL($("#ipt")[0].files[0]);
+        imgFile.onload = function () {
+            const imgData = this.result.toString();
+
+            // 拿到Base64后
+            $.post("upload", {
+                "base64": imgData,
+                "scale": $('#scale option:selected').text(),
+                "cut": jcropApi.tellSelect()
+            }, function (data, status, xhr) {
+                $('#ok').empty()
+                let i = 0;
+                data.forEach(it => {
+                    $('#ok').append("<img src=\"" + it + "\" title='请将本图片位于第 " + (data.length - i) + " 张上传'>").append("<br>")
+                    i++
+                })
+            })
+        }
+    }
+
+    // 本地input选择图片实时显示
+    $('#ipt').change(function () {
+        const qwq = $("#qwq");
+        qwq.attr("src", URL.createObjectURL($(this)[0].files[0]));
+        qwq.removeAttr("style");
+        initJcrop()
+    })
+
+    // 选择规格后触发
+    function gradeChange() {
+        scale = $('#scale option:selected').val()
+        initJcrop()
+    }
+
+</script>
+</body>
+
+</html>
