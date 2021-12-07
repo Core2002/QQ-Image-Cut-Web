@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -8,18 +8,17 @@
     <title>QQ精选照片切割器</title>
 
     <link rel="stylesheet" href="jquery.Jcrop.css">
-    <script src="jquery-3.6.0.min.js"></script>
-    <script src="jquery.Jcrop.min.js"></script>
-    <!-- <script src="//apps.bdimg.com/libs/jquery/1.11.3/jquery.min.js"></script> -->
-    <!-- <script src="//ku.shouce.ren/libs/jcrop/js/jquery.Jcrop.min.js"> -->
+        <script src="jquery-3.6.0.min.js"></script>
+        <script src="jquery.Jcrop.min.js"></script>
+<!--    <script src="https://apps.bdimg.com/libs/jquery/1.11.3/jquery.min.js"></script>-->
+<!--    <script src="https://ku.shouce.ren/libs/jcrop/js/jquery.Jcrop.min.js">-->
     </script>
 </head>
 
 <body>
-<img id="qwq" src="" title="awa">
-<br>
+<img id="qwq" src="sago.jpg" title="awa">
 <select id="scale" onchange="gradeChange()" title="选择规格">
-    <option value="1">--请选择裁剪规格--</option>
+    <option value="1.0001">--请选择裁剪规格--</option>
     <option value="1.5">规格C3，宽高比3:2</option>
     <option value="1">规格C4，宽高比1:1</option>
     <option value="1.2">规格C5，宽高比6:5</option>
@@ -28,7 +27,6 @@
     <option value="0.8">规格C8，宽高比2:2.5</option>
     <option value="0.75">规格C9，宽高比3:4</option>
 </select>
-
 <input type="file" id="ipt" accept="image/*" value="选择图片" title="选择图片">
 <br><br>
 <div id="ok"></div>
@@ -43,8 +41,11 @@
             jcropApi.destroy()
         }
         $('#qwq').Jcrop({
-            onDblClick: pushImage,
             aspectRatio: scale,
+            touchSupport: true,
+            boxWidth: "300",
+            onDblClick: pushImage,
+            onSelect: pushImage,
             onChange: debug
         }, function () {
             jcropApi = this;
@@ -61,7 +62,18 @@
     // 提交裁剪数据
     function pushImage(c) {
         const imgFile = new FileReader();
-        imgFile.readAsDataURL($("#ipt")[0].files[0]);
+
+        const file = $("#ipt")[0].files[0];
+        if (file == null) {
+            alert("请先上传一张图片")
+            return
+        }
+        if ($("#scale").val() == 1.0001) {
+            alert("请选择规格")
+            return
+        }
+
+        imgFile.readAsDataURL(file);
         imgFile.onload = function () {
             const imgData = this.result.toString();
 
@@ -77,6 +89,7 @@
                     $('#ok').append("<img src=\"" + it + "\" title='请将本图片位于第 " + (data.length - i) + " 张上传'>").append("<br>")
                     i++
                 })
+                console.log(status)
             })
         }
     }
@@ -84,8 +97,8 @@
     // 本地input选择图片实时显示
     $('#ipt').change(function () {
         const qwq = $("#qwq");
-        qwq.attr("src", URL.createObjectURL($(this)[0].files[0]));
         qwq.removeAttr("style");
+        qwq.attr("src", URL.createObjectURL($(this)[0].files[0]));
         initJcrop()
     })
 

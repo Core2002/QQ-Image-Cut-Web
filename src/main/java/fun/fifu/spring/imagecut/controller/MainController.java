@@ -25,15 +25,15 @@ public class MainController {
     public List<String> upload(@RequestParam Map<String, Object> map) {
         // 信息收集
 //        System.out.println(map.get("base64"));
-        String base64 = ((String) map.get("base64")).replace("data:image/jpeg;base64,", "");
+        String base64 = ((String) map.get("base64")).split(",")[1];
         String scale = ((String) map.get("scale"));
 
-        var cutX = Double.parseDouble((String) map.get("cut[x]"));
-        var cutY = Double.parseDouble((String) map.get("cut[y]"));
-        var cutX2 = Double.parseDouble((String) map.get("cut[x2]"));
-        var cutY2 = Double.parseDouble((String) map.get("cut[y2]"));
-        var cutW = Double.parseDouble((String) map.get("cut[w]"));
-        var cutH = Double.parseDouble((String) map.get("cut[h]"));
+        double cutX = Double.parseDouble((String) map.get("cut[x]"));
+        double cutY = Double.parseDouble((String) map.get("cut[y]"));
+        double cutX2 = Double.parseDouble((String) map.get("cut[x2]"));
+        double cutY2 = Double.parseDouble((String) map.get("cut[y2]"));
+        double cutW = Double.parseDouble((String) map.get("cut[w]"));
+        double cutH = Double.parseDouble((String) map.get("cut[h]"));
 
         BufferedImage bufferedImage = ImgUtil.base64ToBufferedImage(base64);
         if (bufferedImage == null) {
